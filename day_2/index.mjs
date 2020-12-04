@@ -6,18 +6,18 @@ const lines = input.split("\n");
 let validPasswordsFirstTest = 0;
 let validPasswordsSecondTest = 0;
 
-for (let line of lines) {
-  const minusIndex = line.indexOf("-");
-  const firstSpaceIndex = line.indexOf(" ");
-  const colonIndex = line.indexOf(":");
+const pattern = "([0-9]+)-([0-9]+) ([a-z]): ([a-z]+)";
+const re = new RegExp(pattern);
 
-  const min = parseInt(line.substr(0));
-  const max = parseInt(line.substr(minusIndex + 1, firstSpaceIndex));
-  const char = line.charAt(colonIndex - 1);
-  const pwd = line.substr(colonIndex + 1);
+for (let line of lines) {
+  const match = re.exec(line);
+  const min = parseInt(match[1]);
+  const max = parseInt(match[2]);
+  const char = match[3];
+  const pwd = match[4];
 
   if (isValid(min, max, char, pwd)) {
-    validPasswordsFirstTest++
+    validPasswordsFirstTest++;
   }
 
   if (isValidToboggan(min, max, char, pwd)) {
@@ -31,8 +31,8 @@ function isValid(min, max, char, pwd) {
 }
 
 function isValidToboggan(firstPos, secondPos, char, pwd) {
-  const isInFirst = isCharAtIndex(char, firstPos, pwd);
-  const isInSecond = isCharAtIndex(char, secondPos, pwd);
+  const isInFirst = isCharAtIndex(char, firstPos - 1, pwd);
+  const isInSecond = isCharAtIndex(char, secondPos - 1, pwd);
   const xor = !!(isInFirst ^ isInSecond);
   return xor;
 }
