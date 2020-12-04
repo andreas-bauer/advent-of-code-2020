@@ -3,7 +3,8 @@ import fs from "fs";
 const input = fs.readFileSync("./input.txt", "utf8");
 const lines = input.split("\n");
 
-let validPasswords = 0;
+let validPasswordsFirstTest = 0;
+let validPasswordsSecondTest = 0;
 
 for (let line of lines) {
   const minusIndex = line.indexOf("-");
@@ -16,7 +17,11 @@ for (let line of lines) {
   const pwd = line.substr(colonIndex + 1);
 
   if (isValid(min, max, char, pwd)) {
-    validPasswords++;
+    validPasswordsFirstTest++
+  }
+
+  if (isValidToboggan(min, max, char, pwd)) {
+    validPasswordsSecondTest++;
   }
 }
 
@@ -25,4 +30,20 @@ function isValid(min, max, char, pwd) {
   return amount >= min && amount <= max;
 }
 
-console.log("valid passwords: ", validPasswords);
+function isValidToboggan(firstPos, secondPos, char, pwd) {
+  const isInFirst = isCharAtIndex(char, firstPos, pwd);
+  const isInSecond = isCharAtIndex(char, secondPos, pwd);
+  const xor = !!(isInFirst ^ isInSecond);
+  return xor;
+}
+
+function isCharAtIndex(char, index, text) {
+  if (index >= text.length) {
+    return false;
+  }
+
+  return char === text.charAt(index);
+}
+
+console.log("Valid passwords for first test: ", validPasswordsFirstTest);
+console.log("Valid passwords for second test: ", validPasswordsSecondTest);
