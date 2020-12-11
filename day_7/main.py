@@ -2,31 +2,30 @@ import re
 
 input = open('input.txt', 'r').read().split("\n")
 
-first_color_re = re.compile(r"(\w+ \w+) bags contain")
+color_primary_re = re.compile(r"(.+?) bags")
 contain_bags_re = re.compile(r"(\d) (\w+ \w+)")
 
-noBags = lambda r: r.endswith("no other bags.")
-
-bags = {}
+graph = {}
 
 for rule in input:
-    match = first_color_re.match(rule)
-    color = match.group(1)
-    dep_matches = contain_bags_re.findall(rule)
-    bags[color] = dep_matches
+    match = color_primary_re.match(rule)
+    color_primary = match.group(1)
+    color_inside = contain_bags_re.findall(rule)
+    if len(color_inside) > 0:
+        graph[color_primary] = color_inside
+    else:
+        graph[color_primary] = [("0", "")]
 
-count_shiny_gold = 0
-contains_shiny_gold = []
-for bag in bags:
-    for content in bags[bag]:
-        color = content[1]
-        if color == "shiny gold":
-            contains_shiny_gold.append(bag)
 
-for bag in bags:
-    for content in bags[bag]:
-        color = content[1]
-        if color in contains_shiny_gold:
-            count_shiny_gold += 1
+def shiny_gold(color):
+    if color == "shiny gold":
+        return True
+    elif color == "":
+        return False
+    else:
+        return any(shiny_gold(child) for amount, child in graph[color])
 
-print(str(count_shiny_gold))
+
+shiny_gold_counter = sum(shiny_gold(color) for color in graph.keys()) - 1
+print("Part 1: Number of bags that can contain a shiny gold bag: " +
+      str(shiny_gold_counter))
